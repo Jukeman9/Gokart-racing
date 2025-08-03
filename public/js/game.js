@@ -106,43 +106,120 @@ class Game {
     }
 
     async initializeSystems() {
+        const systemsStatus = {
+            input: false,
+            graphics: false,
+            physics: false,
+            audio: false,
+            ai: false,
+            multiplayer: false
+        };
+
         // Initialize input system
-        this.input = new InputManager();
+        try {
+            this.input = new InputManager();
+            systemsStatus.input = true;
+            console.log('✅ Input system initialized');
+        } catch (error) {
+            console.error('❌ Input system failed:', error);
+            this.input = this.createFallbackInputManager();
+        }
         
         // Initialize graphics system
-        this.graphics = new GraphicsEngine(this.canvas);
+        try {
+            this.graphics = new GraphicsEngine(this.canvas);
+            systemsStatus.graphics = true;
+            console.log('✅ Graphics system initialized');
+        } catch (error) {
+            console.error('❌ Graphics system failed:', error);
+            this.graphics = this.createFallbackGraphicsEngine();
+        }
         
         // Initialize physics system
-        this.physics = new PhysicsEngine();
+        try {
+            this.physics = new PhysicsEngine();
+            systemsStatus.physics = true;
+            console.log('✅ Physics system initialized');
+        } catch (error) {
+            console.error('❌ Physics system failed:', error);
+            this.physics = this.createFallbackPhysicsEngine();
+        }
         
         // Initialize audio system
-        this.audio = new AudioManager();
+        try {
+            this.audio = new AudioManager();
+            systemsStatus.audio = true;
+            console.log('✅ Audio system initialized');
+        } catch (error) {
+            console.error('❌ Audio system failed:', error);
+            this.audio = this.createFallbackAudioManager();
+        }
         
         // Initialize AI system
-        this.ai = new AIManager();
+        try {
+            this.ai = new AIManager();
+            systemsStatus.ai = true;
+            console.log('✅ AI system initialized');
+        } catch (error) {
+            console.error('❌ AI system failed:', error);
+            this.ai = this.createFallbackAIManager();
+        }
         
         // Initialize multiplayer system
-        this.multiplayer = new MultiplayerManager();
+        try {
+            this.multiplayer = new MultiplayerManager();
+            systemsStatus.multiplayer = true;
+            console.log('✅ Multiplayer system initialized');
+        } catch (error) {
+            console.error('❌ Multiplayer system failed:', error);
+            this.multiplayer = this.createFallbackMultiplayerManager();
+        }
         
-        // Wait for systems to be ready
-        await this.waitForSystemsReady();
+        // Log system status
+        const successCount = Object.values(systemsStatus).filter(Boolean).length;
+        console.log(`🎮 Game systems: ${successCount}/6 initialized successfully`);
+        
+        // Wait for systems to be ready (with timeout)
+        try {
+            await this.waitForSystemsReady();
+        } catch (error) {
+            console.warn('⚠️ Some systems took too long to initialize, continuing anyway');
+        }
         
         // Initialize track data
-        this.trackData = this.graphics.track;
-        this.physics.initialize(this.trackData);
-        this.ai.initialize(this.trackData);
+        try {
+            this.trackData = this.graphics.track || this.createFallbackTrackData();
+            this.physics.initialize(this.trackData);
+            this.ai.initialize(this.trackData);
+        } catch (error) {
+            console.error('❌ Track initialization failed:', error);
+            this.trackData = this.createFallbackTrackData();
+        }
     }
 
     async waitForSystemsReady() {
-        // Wait for graphics assets to load
+        const maxWaitTime = 10000; // 10 seconds timeout
+        const startTime = Date.now();
+        
+        // Wait for graphics assets to load (with timeout)
         while (this.graphics.loadingProgress < 1) {
+            if (Date.now() - startTime > maxWaitTime) {
+                console.warn('⚠️ Graphics loading timeout, continuing anyway');
+                break;
+            }
             await new Promise(resolve => setTimeout(resolve, 100));
         }
         
-        // Wait for audio to initialize
+        // Wait for audio to initialize (with timeout)
         while (!this.audio.initialized) {
+            if (Date.now() - startTime > maxWaitTime) {
+                console.warn('⚠️ Audio initialization timeout, continuing anyway');
+                break;
+            }
             await new Promise(resolve => setTimeout(resolve, 100));
         }
+        
+        console.log('✅ All systems ready (or timeout reached)');
     }
 
     setupUI() {
@@ -162,6 +239,9 @@ class Game {
         // Setup menu event handlers
         this.setupMenuHandlers();
         
+        // Disable multiplayer button if not available
+        this.updateMultiplayerButtonState();
+        
         // Setup game UI handlers
         this.setupGameUIHandlers();
         
@@ -170,44 +250,66 @@ class Game {
     }
 
     setupMenuHandlers() {
+        // Helper function to add both click and touch events to buttons
+        const addButtonEvents = (buttonId, handler) => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                // Add click event
+                button.addEventListener('click', handler);
+                
+                // Add touch event for mobile
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); // Prevent ghost clicks
+                    handler(e);
+                }, { passive: false });
+            }
+        };
+
         // Main menu buttons
-        document.getElementById('singlePlayerBtn').addEventListener('click', () => {
+        addButtonEvents('singlePlayerBtn', () => {
             this.audio.playMenuClick();
             this.showGameModeSelection();
         });
         
-        document.getElementById('multiPlayerBtn').addEventListener('click', () => {
+        addButtonEvents('multiPlayerBtn', () => {
             this.audio.playMenuClick();
+            
+            // Check if multiplayer is available
+            if (window.MULTIPLAYER_AVAILABLE === false) {
+                alert('Multiplayer is not available on this platform. The game is optimized for single-player mode on static hosting.');
+                return;
+            }
+            
             this.startMultiplayer();
         });
         
-        document.getElementById('settingsBtn').addEventListener('click', () => {
+        addButtonEvents('settingsBtn', () => {
             this.audio.playMenuClick();
             this.showSettings();
         });
         
-        document.getElementById('instructionsBtn').addEventListener('click', () => {
+        addButtonEvents('instructionsBtn', () => {
             this.audio.playMenuClick();
             this.showInstructions();
         });
         
         // Game mode selection
-        document.getElementById('easyModeBtn').addEventListener('click', () => {
+        addButtonEvents('easyModeBtn', () => {
             this.audio.playMenuClick();
             this.startSinglePlayer('easy');
         });
         
-        document.getElementById('mediumModeBtn').addEventListener('click', () => {
+        addButtonEvents('mediumModeBtn', () => {
             this.audio.playMenuClick();
             this.startSinglePlayer('medium');
         });
         
-        document.getElementById('hardModeBtn').addEventListener('click', () => {
+        addButtonEvents('hardModeBtn', () => {
             this.audio.playMenuClick();
             this.startSinglePlayer('hard');
         });
         
-        document.getElementById('backToMenuBtn').addEventListener('click', () => {
+        addButtonEvents('backToMenuBtn', () => {
             this.audio.playMenuClick();
             this.showMainMenu();
         });
@@ -220,37 +322,49 @@ class Game {
         ];
         
         backButtons.forEach(id => {
-            const btn = document.getElementById(id);
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    this.audio.playMenuClick();
-                    this.showMainMenu();
-                });
-            }
+            addButtonEvents(id, () => {
+                this.audio.playMenuClick();
+                this.showMainMenu();
+            });
         });
         
         // Results screen
-        document.getElementById('raceAgainBtn').addEventListener('click', () => {
+        addButtonEvents('raceAgainBtn', () => {
             this.audio.playMenuClick();
             this.restartRace();
         });
     }
 
     setupGameUIHandlers() {
+        // Helper function to add both click and touch events to buttons
+        const addButtonEvents = (buttonId, handler) => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                // Add click event
+                button.addEventListener('click', handler);
+                
+                // Add touch event for mobile
+                button.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); // Prevent ghost clicks
+                    handler(e);
+                }, { passive: false });
+            }
+        };
+        
         // Pause functionality
-        document.getElementById('pauseBtn').addEventListener('click', () => {
+        addButtonEvents('pauseBtn', () => {
             this.pauseGame();
         });
         
-        document.getElementById('resumeBtn').addEventListener('click', () => {
+        addButtonEvents('resumeBtn', () => {
             this.resumeGame();
         });
         
-        document.getElementById('restartBtn').addEventListener('click', () => {
+        addButtonEvents('restartBtn', () => {
             this.restartRace();
         });
         
-        document.getElementById('quitBtn').addEventListener('click', () => {
+        addButtonEvents('quitBtn', () => {
             this.quitToMenu();
         });
         
@@ -300,6 +414,26 @@ class Game {
         }
     }
 
+    // Update multiplayer button state based on availability
+    updateMultiplayerButtonState() {
+        const multiplayerBtn = document.getElementById('multiPlayerBtn');
+        if (multiplayerBtn) {
+            if (window.MULTIPLAYER_AVAILABLE === false) {
+                multiplayerBtn.style.opacity = '0.5';
+                multiplayerBtn.style.cursor = 'not-allowed';
+                multiplayerBtn.title = 'Multiplayer not available on this platform';
+                
+                // Add disabled class for additional styling
+                multiplayerBtn.classList.add('disabled');
+            } else {
+                multiplayerBtn.style.opacity = '1';
+                multiplayerBtn.style.cursor = 'pointer';
+                multiplayerBtn.title = 'Play with friends online';
+                multiplayerBtn.classList.remove('disabled');
+            }
+        }
+    }
+
     // Game state management
     setState(newState) {
         this.previousState = this.state;
@@ -307,12 +441,22 @@ class Game {
         
         console.log(`Game state changed: ${this.previousState} -> ${this.state}`);
         
-        // Hide all screens
+        // Force hide all screens - use both CSS classes and direct style
         Object.values(this.uiElements).forEach(element => {
             if (element) {
                 element.classList.add('hidden');
+                element.style.display = 'none'; // Force hide with style
+                element.style.zIndex = '1'; // Ensure low z-index
             }
         });
+        
+        // Explicitly hide the canvas for menu states
+        if (this.canvas) {
+            if (['menu', 'gameMode', 'settings', 'instructions', 'multiplayerLobby', 'results'].includes(newState)) {
+                this.canvas.classList.add('hidden');
+                this.canvas.style.display = 'none';
+            }
+        }
         
         // Show appropriate screen
         switch (this.state) {
@@ -321,8 +465,9 @@ class Game {
                 break;
             case 'menu':
                 this.showScreen('mainMenu');
-                this.canvas.classList.add('hidden');
-                this.audio.playMusic('menu', { fadeIn: 1 });
+                if (this.audio && this.audio.playMusic) {
+                    this.audio.playMusic('menu', { fadeIn: 1 });
+                }
                 break;
             case 'gameMode':
                 this.showScreen('gameModeScreen');
@@ -337,16 +482,34 @@ class Game {
                 this.showScreen('instructionsScreen');
                 break;
             case 'playing':
+                // Hide all menu screens first
+                Object.values(this.uiElements).forEach(element => {
+                    if (element && element.id !== 'gameUI') {
+                        element.classList.add('hidden');
+                        element.style.display = 'none';
+                    }
+                });
+                
+                // Show game UI and canvas
                 this.showScreen('gameUI');
-                this.canvas.classList.remove('hidden');
-                this.audio.playMusic('race', { fadeIn: 1 });
+                if (this.canvas) {
+                    this.canvas.classList.remove('hidden');
+                    this.canvas.style.display = 'block';
+                    this.canvas.style.zIndex = '1';
+                }
+                
+                if (this.audio && this.audio.playMusic) {
+                    this.audio.playMusic('race', { fadeIn: 1 });
+                }
                 break;
             case 'paused':
                 this.showScreen('pauseMenu');
                 break;
             case 'results':
                 this.showScreen('resultsScreen');
-                this.audio.playMusic('results');
+                if (this.audio && this.audio.playMusic) {
+                    this.audio.playMusic('results');
+                }
                 break;
             case 'error':
                 alert('An error occurred. Please refresh the page.');
@@ -358,6 +521,20 @@ class Game {
         const screen = this.uiElements[screenId];
         if (screen) {
             screen.classList.remove('hidden');
+            screen.style.display = 'flex'; // Force display
+            screen.style.zIndex = '10'; // Ensure high z-index for menus
+            
+            // Special handling for game UI
+            if (screenId === 'gameUI') {
+                screen.style.zIndex = '5'; // Lower z-index for game UI
+                screen.style.pointerEvents = 'none'; // Allow clicks to pass through
+                
+                // Re-enable pointer events for interactive elements
+                const interactiveElements = screen.querySelectorAll('button, .control-btn, .pause-btn');
+                interactiveElements.forEach(el => {
+                    el.style.pointerEvents = 'auto';
+                });
+            }
         }
     }
 
@@ -830,15 +1007,113 @@ class Game {
         };
     }
 
+    // Fallback system creators (minimal functional versions)
+    createFallbackInputManager() {
+        return {
+            getInputState: () => ({ accelerate: 0, brake: 0, steer: 0, pause: false }),
+            update: () => {},
+            resetFrameInputs: () => {},
+            setTiltSensitivity: () => {},
+            calibrateTilt: () => {},
+            getDebugInfo: () => ({ status: 'fallback mode' }),
+            destroy: () => {}
+        };
+    }
+
+    createFallbackGraphicsEngine() {
+        return {
+            render: () => {
+                const ctx = this.canvas.getContext('2d');
+                ctx.fillStyle = '#2d5a2d';
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Running in Safe Mode', this.canvas.width/2, this.canvas.height/2);
+            },
+            updateCamera: () => {},
+            updateParticles: () => {},
+            setGraphicsQuality: () => {},
+            resize: () => {},
+            renderMinimap: () => {},
+            loadingProgress: 1,
+            track: this.createFallbackTrackData(),
+            destroy: () => {}
+        };
+    }
+
+    createFallbackPhysicsEngine() {
+        return {
+            initialize: () => {},
+            update: () => {},
+            checkCheckpoints: () => null,
+            getRacePosition: () => 1,
+            destroy: () => {}
+        };
+    }
+
+    createFallbackAudioManager() {
+        return {
+            playMenuClick: () => {},
+            playMusic: () => {},
+            setSFXVolume: () => {},
+            setMusicVolume: () => {},
+            getVolumes: () => ({ sfx: 0.7, music: 0.5 }),
+            startEngineSound: () => {},
+            stopEngineSound: () => {},
+            updateEngineSound: () => {},
+            playCountdown: () => {},
+            playRaceStart: () => {},
+            playLapComplete: () => {},
+            playCheckpoint: () => {},
+            playRaceFinish: () => {},
+            initialized: true,
+            getDebugInfo: () => ({ status: 'fallback mode - no audio' }),
+            destroy: () => {}
+        };
+    }
+
+    createFallbackAIManager() {
+        return {
+            initialize: () => {},
+            createRace: () => {},
+            update: () => {},
+            bots: [],
+            destroy: () => {}
+        };
+    }
+
+    createFallbackMultiplayerManager() {
+        return {
+            connect: () => Promise.reject(new Error('Multiplayer unavailable')),
+            disconnect: () => {},
+            playerId: 'fallback_player',
+            playerName: 'Player',
+            sendPlayerUpdate: () => {},
+            getNetworkStats: () => ({ status: 'unavailable' }),
+            destroy: () => {}
+        };
+    }
+
+    createFallbackTrackData() {
+        return {
+            path: [],
+            bounds: [],
+            checkpoints: [],
+            obstacles: [],
+            startLine: { x: 100, y: 100, angle: 0 }
+        };
+    }
+
     destroy() {
         this.cleanup();
         
-        if (this.input) this.input.destroy();
-        if (this.graphics) this.graphics.destroy();
-        if (this.physics) this.physics.destroy();
-        if (this.audio) this.audio.destroy();
-        if (this.ai) this.ai.destroy();
-        if (this.multiplayer) this.multiplayer.destroy();
+        if (this.input && this.input.destroy) this.input.destroy();
+        if (this.graphics && this.graphics.destroy) this.graphics.destroy();
+        if (this.physics && this.physics.destroy) this.physics.destroy();
+        if (this.audio && this.audio.destroy) this.audio.destroy();
+        if (this.ai && this.ai.destroy) this.ai.destroy();
+        if (this.multiplayer && this.multiplayer.destroy) this.multiplayer.destroy();
         
         console.log('Game destroyed');
     }

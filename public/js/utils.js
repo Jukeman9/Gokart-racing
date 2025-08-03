@@ -323,6 +323,20 @@ class Utils {
         });
     }
 
+    // Time utilities
+    static now() {
+        return performance.now ? performance.now() : Date.now();
+    }
+
+    static formatTime(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const ms = Math.floor((milliseconds % 1000) / 10);
+        
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+    }
+
     // Game-specific utilities
     static generateRoomCode() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

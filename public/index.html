@@ -195,7 +195,28 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- Socket.IO - Only load if multiplayer server is available -->
+    <script>
+        // Conditionally load Socket.IO for multiplayer
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // Development environment - try to load Socket.IO
+            const socketScript = document.createElement('script');
+            socketScript.src = '/socket.io/socket.io.js';
+            socketScript.onerror = () => {
+                console.log('Multiplayer server not available - running in single-player mode');
+                window.MULTIPLAYER_AVAILABLE = false;
+            };
+            socketScript.onload = () => {
+                console.log('Socket.IO loaded - multiplayer available');
+                window.MULTIPLAYER_AVAILABLE = true;
+            };
+            document.head.appendChild(socketScript);
+        } else {
+            // Production environment - multiplayer not available on static hosting
+            console.log('Production mode - multiplayer disabled for static hosting');
+            window.MULTIPLAYER_AVAILABLE = false;
+        }
+    </script>
     <script src="js/utils.js"></script>
     <script src="js/physics.js"></script>
     <script src="js/graphics.js"></script>

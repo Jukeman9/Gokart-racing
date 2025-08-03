@@ -33,11 +33,27 @@ body {
     justify-content: center;
     z-index: 10;
     transition: opacity 0.3s ease;
+    background: transparent; /* Ensure no background interference */
 }
 
 .screen.hidden {
-    display: none;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    z-index: -1 !important;
 }
+
+/* Ensure proper layering */
+#loadingScreen { z-index: 100; }
+#mainMenu { z-index: 50; }
+#gameModeScreen { z-index: 50; }
+#multiplayerLobby { z-index: 50; }
+#settingsScreen { z-index: 50; }
+#instructionsScreen { z-index: 50; }
+#resultsScreen { z-index: 50; }
+#pauseMenu { z-index: 30; }
+#gameUI { z-index: 5; }
+#gameCanvas { z-index: 1; }
 
 .menu-content {
     text-align: center;
@@ -119,11 +135,16 @@ body {
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     min-width: 200px;
+    min-height: 48px; /* Minimum touch target size */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     text-transform: uppercase;
     letter-spacing: 1px;
+    touch-action: manipulation; /* Optimize for touch */
+    user-select: none; /* Prevent text selection */
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
 }
 
 .menu-btn:hover, .menu-btn:focus {
@@ -132,7 +153,23 @@ body {
 }
 
 .menu-btn:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
+    background: linear-gradient(145deg, #5a6fd8 0%, #6a4190 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Disabled button state */
+.menu-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.menu-btn.disabled:hover,
+.menu-btn.disabled:focus,
+.menu-btn.disabled:active {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .menu-btn.secondary {
@@ -393,11 +430,17 @@ body {
     backdrop-filter: blur(5px);
     touch-action: manipulation;
     user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    /* Ensure minimum touch target */
+    min-width: 48px;
+    min-height: 48px;
 }
 
 .control-btn:active {
     transform: scale(0.95);
     background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
 }
 
 .brake-btn:active {
@@ -512,20 +555,25 @@ body {
     .menu-content {
         padding: 20px;
         max-width: 95vw;
+        margin: 10px;
     }
     
     .menu-content h1 {
         font-size: 2rem;
+        margin-bottom: 20px;
     }
     
     .menu-content h2 {
         font-size: 1.5rem;
+        margin-bottom: 15px;
     }
     
     .menu-btn {
-        min-width: 180px;
-        padding: 12px 25px;
-        font-size: 1rem;
+        min-width: 220px; /* Larger for better touch */
+        min-height: 52px; /* Increased touch target */
+        padding: 16px 30px;
+        font-size: 1.1rem;
+        margin: 5px 0;
     }
     
     .race-info {
@@ -533,6 +581,7 @@ body {
         left: 10px;
         padding: 10px;
         font-size: 0.8rem;
+        border-radius: 8px;
     }
     
     .speedometer {
@@ -543,7 +592,7 @@ body {
     }
     
     .mini-map {
-        bottom: 100px;
+        bottom: 120px; /* Adjusted for mobile controls */
         right: 10px;
         padding: 8px;
     }
@@ -554,13 +603,71 @@ body {
     }
     
     .mobile-controls {
+        padding: 0 25px;
+        height: 110px; /* Slightly taller for better thumb reach */
+    }
+    
+    .control-btn {
+        width: 75px; /* Larger touch targets */
+        height: 75px;
+        font-size: 1.4rem;
+        min-width: 75px;
+        min-height: 75px;
+    }
+    
+    .pause-btn {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        right: 100px; /* Moved to avoid speedometer */
+    }
+}
+
+/* Improved mobile controls layout */
+@media (max-width: 380px) {
+    .menu-btn {
+        min-width: 200px;
+        font-size: 1rem;
+        padding: 14px 25px;
+    }
+    
+    .control-btn {
+        width: 65px;
+        height: 65px;
+        font-size: 1.2rem;
+    }
+    
+    .mobile-controls {
         padding: 0 20px;
+    }
+}
+
+/* Better landscape mobile support */
+@media (max-height: 500px) and (orientation: landscape) {
+    .menu-content {
+        max-height: 80vh;
+        padding: 15px;
+        overflow-y: auto;
+    }
+    
+    .menu-content h1 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+    
+    .menu-btn {
+        padding: 12px 25px;
+        min-height: 44px;
+        margin: 3px 0;
+    }
+    
+    .mobile-controls {
+        height: 90px;
     }
     
     .control-btn {
         width: 60px;
         height: 60px;
-        font-size: 1.3rem;
     }
 }
 

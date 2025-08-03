@@ -11,7 +11,7 @@
     "build": "npm run build:client && npm run build:server",
     "build:client": "mkdir -p dist && cp -r public/* dist/",
     "build:server": "mkdir -p dist/server && cp -r server/* dist/server/",
-    "netlify-build": "npm run build:client"
+    "netlify-build": "echo 'Using public directory directly for static hosting'"
   },
   "dependencies": {
     "bootstrap": "^5.3.2",

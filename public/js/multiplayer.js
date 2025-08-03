@@ -57,6 +57,16 @@ class MultiplayerManager {
             return Promise.resolve();
         }
 
+        // Check if multiplayer is available
+        if (window.MULTIPLAYER_AVAILABLE === false) {
+            return Promise.reject(new Error('Multiplayer not available on this platform'));
+        }
+
+        // Check if WebSocket is supported
+        if (!window.WebSocket) {
+            return Promise.reject(new Error('WebSocket not supported in this browser'));
+        }
+
         return new Promise((resolve, reject) => {
             try {
                 this.socket = new WebSocket(this.serverUrl);
