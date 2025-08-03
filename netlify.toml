@@ -1,0 +1,67 @@
+[build]
+  command = "npm run netlify-build"
+  publish = "dist"
+  
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+# Production build
+[context.production]
+  command = "npm run netlify-build"
+
+# Deploy preview builds
+[context.deploy-preview]
+  command = "npm run netlify-build"
+
+# Branch deploys
+[context.branch-deploy]
+  command = "npm run netlify-build"
+
+# Redirects and headers
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css" 
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Functions configuration
+[functions]
+  directory = "netlify/functions"
+
+# Edge functions
+[edge_functions]
+  directory = "netlify/edge-functions"
