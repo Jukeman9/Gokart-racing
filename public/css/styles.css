@@ -1,0 +1,646 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Screen Management */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+.screen.hidden {
+    display: none;
+}
+
+.menu-content {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu-content h1 {
+    color: #fff;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.menu-content h2 {
+    color: #fff;
+    font-size: 2rem;
+    margin-bottom: 25px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Loading Screen */
+.loading-content {
+    text-align: center;
+    color: white;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.progress-bar {
+    width: 300px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    margin: 20px auto;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Menu Buttons */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.menu-btn {
+    background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.menu-btn:hover, .menu-btn:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.menu-btn:active {
+    transform: translateY(0);
+}
+
+.menu-btn.secondary {
+    background: linear-gradient(145deg, #6c757d 0%, #495057 100%);
+}
+
+.menu-btn.primary {
+    background: linear-gradient(145deg, #28a745 0%, #20c997 100%);
+}
+
+/* Difficulty Buttons */
+.menu-btn.difficulty.easy {
+    background: linear-gradient(145deg, #28a745 0%, #34ce57 100%);
+}
+
+.menu-btn.difficulty.medium {
+    background: linear-gradient(145deg, #ffc107 0%, #ffca2c 100%);
+    color: #000;
+}
+
+.menu-btn.difficulty.hard {
+    background: linear-gradient(145deg, #dc3545 0%, #e74c3c 100%);
+}
+
+/* Settings */
+.settings-grid {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.setting-item label {
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.setting-item input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+}
+
+.setting-item input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.setting-item select {
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+}
+
+.setting-item span {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+/* Instructions */
+.instructions {
+    text-align: left;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.instruction-item {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.instruction-item h3 {
+    color: #667eea;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.instruction-item p {
+    color: white;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+/* Multiplayer Lobby */
+.room-code {
+    color: white;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.players-list {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    min-height: 120px;
+    color: white;
+}
+
+.connection-status {
+    color: #ffc107;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.connection-status.connected {
+    color: #28a745;
+}
+
+.connection-status.error {
+    color: #dc3545;
+}
+
+/* Game Canvas */
+#gameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background: #000;
+}
+
+/* Game UI */
+#gameUI {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+
+#gameUI > * {
+    pointer-events: auto;
+}
+
+/* Race Info */
+.race-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+    z-index: 10;
+}
+
+.race-info > div {
+    margin-bottom: 5px;
+}
+
+.race-info > div:last-child {
+    margin-bottom: 0;
+}
+
+/* Speedometer */
+.speedometer {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 100px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    padding: 10px;
+    color: white;
+    text-align: center;
+    backdrop-filter: blur(5px);
+}
+
+.speed-value {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.speed-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.speed-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #FFC107, #F44336);
+    width: 0%;
+    transition: width 0.1s ease;
+}
+
+/* Mini Map */
+.mini-map {
+    position: absolute;
+    bottom: 120px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    padding: 10px;
+    backdrop-filter: blur(5px);
+}
+
+#miniMapCanvas {
+    border-radius: 5px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile Controls */
+.mobile-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+    z-index: 10;
+}
+
+.control-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    backdrop-filter: blur(5px);
+    touch-action: manipulation;
+    user-select: none;
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.brake-btn:active {
+    background: rgba(220, 53, 69, 0.7);
+}
+
+.gas-btn:active {
+    background: rgba(40, 167, 69, 0.7);
+}
+
+/* Pause Button */
+.pause-btn {
+    position: absolute;
+    top: 20px;
+    right: 140px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    z-index: 15;
+}
+
+/* Pause Overlay */
+.pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    backdrop-filter: blur(5px);
+}
+
+.pause-content {
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Results Screen */
+.results-table {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    color: white;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.result-row:last-child {
+    border-bottom: none;
+}
+
+.result-position {
+    font-weight: bold;
+    font-size: 1.2rem;
+    width: 30px;
+}
+
+.result-name {
+    flex: 1;
+    text-align: left;
+    margin-left: 20px;
+}
+
+.result-time {
+    font-family: monospace;
+    font-size: 1rem;
+}
+
+.result-row.player {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+/* PWA Manifest */
+.manifest-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    z-index: 1000;
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .menu-content {
+        padding: 20px;
+        max-width: 95vw;
+    }
+    
+    .menu-content h1 {
+        font-size: 2rem;
+    }
+    
+    .menu-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .menu-btn {
+        min-width: 180px;
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    
+    .race-info {
+        top: 10px;
+        left: 10px;
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+    
+    .speedometer {
+        top: 10px;
+        right: 10px;
+        width: 80px;
+        padding: 8px;
+    }
+    
+    .mini-map {
+        bottom: 100px;
+        right: 10px;
+        padding: 8px;
+    }
+    
+    #miniMapCanvas {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .mobile-controls {
+        padding: 0 20px;
+    }
+    
+    .control-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.3rem;
+    }
+}
+
+@media (orientation: landscape) {
+    .menu-content {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .instructions {
+        max-height: 50vh;
+    }
+}
+
+/* Tilt Indicator */
+.tilt-indicator {
+    position: absolute;
+    bottom: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    display: none;
+    z-index: 10;
+}
+
+.tilt-indicator.active {
+    display: block;
+}
+
+.tilt-ball {
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.1s ease;
+}
+
+/* Debug Mode */
+.debug-info {
+    position: absolute;
+    bottom: 140px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #0f0;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    display: none;
+    z-index: 10;
+}
+
+.debug-info.active {
+    display: block;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .menu-content {
+        background: rgba(0, 0, 0, 0.95);
+        border: 3px solid white;
+    }
+    
+    .menu-btn {
+        border: 2px solid white;
+    }
+}

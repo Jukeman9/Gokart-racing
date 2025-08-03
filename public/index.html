@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>GoKart Racing - Mobile Game</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- Loading Screen -->
+        <div id="loadingScreen" class="screen">
+            <div class="loading-content">
+                <h1>🏁 GoKart Racing</h1>
+                <div class="loading-spinner"></div>
+                <p>Loading assets...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="loadingProgress"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="screen hidden">
+            <div class="menu-content">
+                <h1>🏁 GoKart Racing</h1>
+                <div class="menu-buttons">
+                    <button id="singlePlayerBtn" class="menu-btn primary">Single Player</button>
+                    <button id="multiPlayerBtn" class="menu-btn primary">Multiplayer</button>
+                    <button id="settingsBtn" class="menu-btn secondary">Settings</button>
+                    <button id="instructionsBtn" class="menu-btn secondary">How to Play</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Mode Selection -->
+        <div id="gameModeScreen" class="screen hidden">
+            <div class="menu-content">
+                <h2>Select Game Mode</h2>
+                <div class="menu-buttons">
+                    <button id="easyModeBtn" class="menu-btn difficulty easy">Easy Bots</button>
+                    <button id="mediumModeBtn" class="menu-btn difficulty medium">Medium Bots</button>
+                    <button id="hardModeBtn" class="menu-btn difficulty hard">Hard Bots</button>
+                    <button id="backToMenuBtn" class="menu-btn secondary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multiplayer Lobby -->
+        <div id="multiplayerLobby" class="screen hidden">
+            <div class="menu-content">
+                <h2>Multiplayer Lobby</h2>
+                <div id="roomCode" class="room-code">Room: <span id="roomCodeText">----</span></div>
+                <div id="playersList" class="players-list"></div>
+                <div class="menu-buttons">
+                    <button id="startRaceBtn" class="menu-btn primary" disabled>Start Race</button>
+                    <button id="leaveRoomBtn" class="menu-btn secondary">Leave Room</button>
+                </div>
+                <div id="connectionStatus" class="connection-status">Connecting...</div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div id="settingsScreen" class="screen hidden">
+            <div class="menu-content">
+                <h2>Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label>Sound Effects</label>
+                        <input type="range" id="sfxVolume" min="0" max="100" value="70">
+                        <span id="sfxVolumeText">70%</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>Background Music</label>
+                        <input type="range" id="musicVolume" min="0" max="100" value="50">
+                        <span id="musicVolumeText">50%</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>Tilt Sensitivity</label>
+                        <input type="range" id="tiltSensitivity" min="0.5" max="3" step="0.1" value="1.5">
+                        <span id="tiltSensitivityText">1.5x</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>Graphics Quality</label>
+                        <select id="graphicsQuality">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="menu-buttons">
+                    <button id="backFromSettingsBtn" class="menu-btn secondary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div id="instructionsScreen" class="screen hidden">
+            <div class="menu-content">
+                <h2>How to Play</h2>
+                <div class="instructions">
+                    <div class="instruction-item">
+                        <h3>🎮 Controls</h3>
+                        <p><strong>Tilt:</strong> Tilt your device left/right to steer</p>
+                        <p><strong>Gas:</strong> Hold the gas pedal to accelerate</p>
+                        <p><strong>Brake:</strong> Tap the brake to slow down</p>
+                    </div>
+                    <div class="instruction-item">
+                        <h3>🏁 Racing</h3>
+                        <p>Complete 3 laps to finish the race</p>
+                        <p>Avoid walls and other karts</p>
+                        <p>Use slipstream to gain speed</p>
+                    </div>
+                    <div class="instruction-item">
+                        <h3>🤖 Game Modes</h3>
+                        <p><strong>Single Player:</strong> Race against AI bots</p>
+                        <p><strong>Multiplayer:</strong> Race with friends online</p>
+                        <p><strong>Difficulty:</strong> Choose Easy, Medium, or Hard bots</p>
+                    </div>
+                </div>
+                <div class="menu-buttons">
+                    <button id="backFromInstructionsBtn" class="menu-btn secondary">Back</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas" class="hidden"></canvas>
+
+        <!-- Game UI Overlay -->
+        <div id="gameUI" class="hidden">
+            <!-- Race Info -->
+            <div id="raceInfo" class="race-info">
+                <div class="lap-counter">Lap: <span id="currentLap">1</span>/3</div>
+                <div class="position">Position: <span id="currentPosition">1</span>/4</div>
+                <div class="race-time">Time: <span id="raceTime">00:00</span></div>
+            </div>
+
+            <!-- Speed and Progress -->
+            <div id="speedometer" class="speedometer">
+                <div class="speed-value"><span id="speedValue">0</span> mph</div>
+                <div class="speed-bar">
+                    <div class="speed-fill" id="speedFill"></div>
+                </div>
+            </div>
+
+            <!-- Mini Map -->
+            <div id="miniMap" class="mini-map">
+                <canvas id="miniMapCanvas" width="120" height="120"></canvas>
+            </div>
+
+            <!-- Mobile Controls -->
+            <div id="mobileControls" class="mobile-controls">
+                <div class="control-left">
+                    <button id="brakeBtn" class="control-btn brake-btn">🛑</button>
+                </div>
+                <div class="control-right">
+                    <button id="gasBtn" class="control-btn gas-btn">⛽</button>
+                </div>
+            </div>
+
+            <!-- Pause Menu -->
+            <div id="pauseMenu" class="pause-overlay hidden">
+                <div class="pause-content">
+                    <h2>Game Paused</h2>
+                    <div class="menu-buttons">
+                        <button id="resumeBtn" class="menu-btn primary">Resume</button>
+                        <button id="restartBtn" class="menu-btn secondary">Restart</button>
+                        <button id="quitBtn" class="menu-btn secondary">Quit to Menu</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pause Button -->
+            <button id="pauseBtn" class="pause-btn">⏸️</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen hidden">
+            <div class="menu-content">
+                <h2 id="resultsTitle">Race Results</h2>
+                <div id="resultsTable" class="results-table"></div>
+                <div class="menu-buttons">
+                    <button id="raceAgainBtn" class="menu-btn primary">Race Again</button>
+                    <button id="backToMenuFromResultsBtn" class="menu-btn secondary">Main Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/graphics.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/multiplayer.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

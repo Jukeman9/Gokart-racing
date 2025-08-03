@@ -1,0 +1,105 @@
+{
+  "name": "GoKart Racing - Mobile Game",
+  "short_name": "GoKart Racing",
+  "description": "A fully-featured go-kart racing game for mobile browsers with multiplayer support",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape-primary",
+  "theme_color": "#667eea",
+  "background_color": "#1e3c72",
+  "lang": "en",
+  "scope": "/",
+  "categories": ["games", "entertainment", "sports"],
+  "screenshots": [
+    {
+      "src": "assets/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "assets/screenshot-narrow.png", 
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "icons": [
+    {
+      "src": "assets/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-96.png",
+      "sizes": "96x96", 
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Race",
+      "description": "Start a quick single player race",
+      "url": "/?mode=quick",
+      "icons": [
+        {
+          "src": "assets/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Multiplayer",
+      "description": "Join or create a multiplayer room", 
+      "url": "/?mode=multiplayer",
+      "icons": [
+        {
+          "src": "assets/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
