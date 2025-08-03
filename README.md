@@ -1,1 +1,2 @@
 # Gocart-mobile-game
+TASK:  Build me gocart mobile gamethat runs in a browser and deploy it. generate all the assistance for the game. it should be production ready no placeholders, no dumny data. Fully fledged game. I should be able to control it with tilt and gas breaks on the screen. If other controls are needed as well as them. The game should allow multiplayer and va bots mode as well with 3 difficulty levels. After you are done update the documentation.
